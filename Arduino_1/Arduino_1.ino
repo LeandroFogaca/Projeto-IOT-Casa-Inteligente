@@ -1,25 +1,44 @@
+#include <DHT.h>
+#include <SPI.h>
+#include <MFRC522.h>
 #include <SoftwareSerial.h>
 
-#define pinLed 13
-#define TX 5
-#define RX 4
+/*
+ * #Define para todos os pinos utilizados
+ */
+ 
+//Pinos da comunicação com o HC-05
+#define BTX 5
+#define BRX 4
 
-SoftwareSerial Bluetooth(RX, TX);
+#define SS_PIN 10
+#define RST_PIN 9
+MFRC522 mfrc522(SS_PIN, RST_PIN)
 
-int Rx, RxF=0;  ////auxiliar e Flag do RX
-char RxBuff[8];
+#define pinDHT A4 // pino de dados do DHT11
+
+SoftwareSerial Bluetooth(BRX, BTX); //Configura a comunicação serial com para o HC-05
+DHT dht(pinDHT, DHTTYPE);  //Configura o DHT11
+
+
+int Rx, RxF=0;  //auxiliar e Flag do RX
+char RxBuff[8]; // Menssagem que será recebida
 
 String myString;
 char cmd;
 
+float umidade;    //usar coando dht.readHumidity();
+float temperatura; // usar comando dht.readTemperature();
 
 void setup()
 {
-  Bluetooth.begin(9600);
-  Serial.begin(9600);
+  Bluetooth.begin(9600); //Inicia comunicação serial para a placa HC-05
+  Serial.begin(9600);   //Inicia comunicação serial para o outro arduino
+  SPI.begin();          //Não sei para oque serve
+  mfrc522.PCD_Init(); //Inicia a comunicação com o sensor RFID
+  dht.begin();  //inicia a comunicação com o DHT11
 
-  pinMode(pinLed, OUTPUT);
-  
+ 
 }
 
 void loop()
@@ -69,5 +88,47 @@ void loop()
            cmd = ' ';
            myString = " ";
         }
+
+
+/*
+ * Inicio da programação do RFID
+ */
+          
+  if ( ! mfrc522.PICC_IsNewCardPresent()){  // Busca novos cartões 
+    return;
+  }
+  
+  if ( ! mfrc522.PICC_ReadCardSerial()){    // Seleciona um catão a ser lido
+    return;
+  }
+
+String Tag = "";
+
+for (byte i = 0; i < mfrc522.uid.size; i++)
+{
+  Tag.concat(String(mfrc522.uid.uidByte[i] < 0x10 ? "0":" "));
+  Tag.concat(String(mfrc522.uid.uidByte[i], HEX));
+}
+
+
+Serial.println(Tag);
+  
+
+
+
+
+
         
 }
+
+
+
+/*
+  testa se retorno do dht é valido, caso contrário algo está errado.
+if (isnan(t) || isnan(h)) 
+  {
+    Serial.println("Failed to read from DHT");
+  }
+
+  */
+ 
