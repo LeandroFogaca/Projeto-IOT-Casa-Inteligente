@@ -5,4 +5,8 @@ Trabalho de conclusão de curso usando aplicativo para controlar uma maquete de 
 
 ### Escopo
 
+O projeto conta com aum aplicativo para controlar uma maquete de uma residência, no hardware foi utilizado 2 arduinos e uma comunicação seriael entre eles, mais um modulo bluetooth *HC-05* e um modulo RFID *colocar aqui o modelo*
+
+
+
 #### teste
