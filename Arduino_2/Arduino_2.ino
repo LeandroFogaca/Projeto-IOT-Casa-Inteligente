@@ -1,15 +1,7 @@
-//Bibliotecas
-
 #include <LiquidCrystal.h>
 #include <SoftwareSerial.h>
 #include <Servo.h>
 
-
-/*
-
-#Define para definir todos os pinos utilizados
-
-*/
 
 //Pinos dos Leds
 #define pinled1 A0
@@ -32,7 +24,7 @@
 LiquidCrystal lcd(RS, E, db4, db5, db6, db7); //Configuração do LCD
 
 
-//SoftwareSerial Arduino02(0,1);
+
 
 
 Servo servoTdo;
@@ -48,7 +40,6 @@ void setup()
   
   lcd.begin(16, 2);
   Serial.begin(9600);
-  //Arduino02.begin(9600);
   pinMode(pinled1 , OUTPUT);
   pinMode(pinled2 , OUTPUT);
   pinMode(pinled3 , OUTPUT);
@@ -86,4 +77,3 @@ void loop()
   
   
 }
-

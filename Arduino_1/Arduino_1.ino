@@ -3,10 +3,7 @@
 #include <MFRC522.h>
 #include <SoftwareSerial.h>
 
-/*
- * #Define para todos os pinos utilizados
- */
- 
+
 //Pinos da comunicação com o HC-05
 #define BTX 5
 #define BRX 4
@@ -25,7 +22,7 @@ int Rx, RxF=0;  //auxiliar e Flag do RX
 char RxBuff[8]; // Menssagem que será recebida
 
 String myString;
-char cmd;
+int cmd;
 
 float umidade;    //usar coando dht.readHumidity();
 float temperatura; // usar comando dht.readTemperature();
@@ -41,12 +38,14 @@ void setup()
  
 }
 
+
 void loop()
 {
  
       if (Bluetooth.available() > 0)
          {
             Rx = Bluetooth.read();
+            RxBuff[8]=RxBuff[7];
             RxBuff[7]=RxBuff[6];
             RxBuff[6]=RxBuff[5];
             RxBuff[5]=RxBuff[4];
@@ -57,61 +56,50 @@ void loop()
             RxBuff[0]=Rx;
       
            RxF = 1; //Flag para sinalizar que a informação é nova
-           //Serial.print("Byterecebido= ");
-           //Serial.println(char(Rx));
+         
          }
 
 
-      if ((RxBuff[7] == '!') && (RxBuff[0]=='#') && (RxF==1))
+      if ((RxBuff[8] == '!') && (RxBuff[0]=='#') && (RxF==1))
       {              
-           Serial.print("Mensagem recebida: ");
-           Serial.print(char(RxBuff[7]));
-           Serial.print(char(RxBuff[6]));
-           Serial.print(char(RxBuff[5]));
-           Serial.print(char(RxBuff[4]));
-           Serial.print(char(RxBuff[3]));
-           Serial.print(char(RxBuff[2]));
-           Serial.print(char(RxBuff[1]));
-           Serial.println(char(RxBuff[0]));
-
-           // trasnforma o valor em uma string
-           for (int i = 6; i >= 3; --i) {   
+       
+           for (int i = 7; i >= 4; --i) {   
               myString.concat(RxBuff[i]);     
            }
-           cmd = RxBuff[1];
-        
-           Serial.print(myString);
-           Serial.print(" = ");
-           Serial.println(cmd);      
+             
+           cmd = (RxBuff[3]-48)*100)+(RxBuff[2]-48)*10)+(RxBuff[1]-48)*1)       
+
            RxF = 0;
 
-           cmd = ' ';
-           myString = " ";
         }
+
+
+
+
 
 
 /*
  * Inicio da programação do RFID
  */
           
-  if ( ! mfrc522.PICC_IsNewCardPresent()){  // Busca novos cartões 
-    return;
-  }
-  
-  if ( ! mfrc522.PICC_ReadCardSerial()){    // Seleciona um catão a ser lido
-    return;
-  }
+        if ( ! mfrc522.PICC_IsNewCardPresent()){  // Busca novos cartões 
+          return;
+        }
+        
+        if ( ! mfrc522.PICC_ReadCardSerial()){    // Seleciona um catão a ser lido
+          return;
+        }
 
 String Tag = "";
 
-for (byte i = 0; i < mfrc522.uid.size; i++)
-{
-  Tag.concat(String(mfrc522.uid.uidByte[i] < 0x10 ? "0":" "));
-  Tag.concat(String(mfrc522.uid.uidByte[i], HEX));
-}
+        for (byte i = 0; i < mfrc522.uid.size; i++)
+        {
+          Tag.concat(String(mfrc522.uid.uidByte[i] < 0x10 ? "0":" "));
+          Tag.concat(String(mfrc522.uid.uidByte[i], HEX));
+        }
 
 
-Serial.println(Tag);
+        Serial.println(Tag);
   
 
 
