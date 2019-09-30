@@ -23,8 +23,8 @@
 
 LiquidCrystal lcd(RS, E, db4, db5, db6, db7); //Configuração do LCD
 
-
-
+int Rx, RxF=0;  //auxiliar e Flag do RX
+char RxBuff[8]; // Menssagem que será recebida
 
 
 Servo servoTdo;
@@ -68,11 +68,38 @@ void loop()
 {
  
 
-
+      if (Serial.available() > 0)
+         {
+            Rx = Bluetooth.read();
+            RxBuff[8]=RxBuff[7];
+            RxBuff[7]=RxBuff[6];
+            RxBuff[6]=RxBuff[5];
+            RxBuff[5]=RxBuff[4];
+            RxBuff[4]=RxBuff[3];
+            RxBuff[3]=RxBuff[2];
+            RxBuff[2]=RxBuff[1];
+            RxBuff[1]=RxBuff[0];
+            RxBuff[0]=Rx;
+      
+           RxF = 1; //Flag para sinalizar que a informação é nova
+         }
   
   
-  
-  
+       if ((RxBuff[8] == '!') && (RxBuff[0]=='#') && (RxF==1))
+          {             
+               for (int i = 7; i >= 4; --i) {   
+                String myString.concat(RxBuff[i]);     
+               }
+                 
+               int cmd = (RxBuff[3]-48)*100)+(RxBuff[2]-48)*10)+(RxBuff[1]-48)*1)       
+    
+    
+          //Decidir oque fazer com a variavel
+    
+    
+               RxF = 0;
+            }
+    
   
   
   

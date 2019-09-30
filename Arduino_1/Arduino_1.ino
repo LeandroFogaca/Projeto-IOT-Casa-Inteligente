@@ -21,9 +21,6 @@ DHT dht(pinDHT, DHTTYPE);  //Configura o DHT11
 int Rx, RxF=0;  //auxiliar e Flag do RX
 char RxBuff[8]; // Menssagem que será recebida
 
-String myString;
-int cmd;
-
 float umidade;    //usar coando dht.readHumidity();
 float temperatura; // usar comando dht.readTemperature();
 
@@ -37,8 +34,6 @@ void setup()
 
  
 }
-
-
 void loop()
 {
  
@@ -56,21 +51,23 @@ void loop()
             RxBuff[0]=Rx;
       
            RxF = 1; //Flag para sinalizar que a informação é nova
-         
          }
 
 
       if ((RxBuff[8] == '!') && (RxBuff[0]=='#') && (RxF==1))
-      {              
-       
+      {             
+           
            for (int i = 7; i >= 4; --i) {   
-              myString.concat(RxBuff[i]);     
+            String myString.concat(RxBuff[i]);     
            }
              
-           cmd = (RxBuff[3]-48)*100)+(RxBuff[2]-48)*10)+(RxBuff[1]-48)*1)       
+           int cmd = (RxBuff[3]-48)*100)+(RxBuff[2]-48)*10)+(RxBuff[1]-48)*1)       
+
+
+      //Enviar os dados do App direto para o arduino02?
+
 
            RxF = 0;
-
         }
 
 
