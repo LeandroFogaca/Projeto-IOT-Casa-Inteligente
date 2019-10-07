@@ -108,6 +108,20 @@ void loop()
 
     //Decidir oque fazer com a variavel
 
+        
+if (myString == "Chv1") {  Chv1  = cmd; }
+if (myString == "Chv2") {  Chv2  = cmd; }
+if (myString == "Chv3") {  Chv3  = cmd; }
+if (myString == "Tag1") {  Tag1  = cmd; }
+if (myString == "Tag2") {  Tag2  = cmd; }
+//if (myString == "") {    = cmd }
+
+
+
+
+
+
+
     RxF = 0;
   }
 
