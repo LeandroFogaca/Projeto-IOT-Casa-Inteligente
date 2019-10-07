@@ -1,6 +1,6 @@
-//#include <DHT.h>
-//#include <DHT_U.h>
-
+#include <DHT.h>
+#include <DHT_U.h>
+#define DHTTYPE DHT11 
 #include <SPI.h>
 #include <MFRC522.h>
 #include <SoftwareSerial.h>
@@ -22,7 +22,7 @@ MFRC522 mfrc522(SS_PIN, RST_PIN);
 
 
 SoftwareSerial Bluetooth(BRX, BTX); //Configura a comunicação serial com para o HC-05
-//DHT dht(pinDHT, DHTTYPE);  //Configura o DHT11
+DHT dht(pinDHT, DHTTYPE);  //Configura o DHT11
 
 
 int Rx, RxF = 0; //auxiliar e Flag do RX
@@ -31,11 +31,11 @@ char RxBuff[9]; // Menssagem que será recebida
 float umidade;    //usar coando dht.readHumidity();
 float temperatura; // usar comando dht.readTemperature();
 
-bool Chv1;
-bool Chv2;
-bool Chv3;
-bool Tag1;
-bool Tag2;
+bool Chv1, lastChv1;
+bool Chv2, lastChv2;
+bool Chv3, lastChv3;
+bool Tag1, lastTag1;
+bool Tag2, lastTag2;
 
 String myString;
 int cmd;
@@ -47,7 +47,7 @@ void setup()
   Serial.begin(9600);   //Inicia comunicação serial para o outro arduino
   SPI.begin();          //Não sei para oque serve
   mfrc522.PCD_Init(); //Inicia a comunicação com o sensor RFID
-  //dht.begin();  //inicia a comunicação com o DHT11
+  dht.begin();  //inicia a comunicação com o DHT11
 
 
 }
@@ -94,6 +94,51 @@ void loop()
   Chv1 = digitalRead(pinChave1);
   Chv2 = digitalRead(pinChave2);
   Chv3 = digitalRead(pinChave3);
+
+if (Chv1 != lastChv1)
+  {
+  myString ="Chv100";
+  myString.concat(Chv1);
+  Serial.println(myString);
+  lastChv1 = Chv1;
+  }
+
+if (Chv2 != lastChv2)
+  {
+  myString ="Chv200";
+  myString.concat(Chv2);
+  Serial.println(myString);
+  lastChv2 = Chv2;
+  }
+
+if (Chv3 != lastChv3)
+  {
+  myString ="Chv300";
+  myString.concat(Chv3);
+  Serial.println(myString);
+  lastChv3 = Chv3;
+  }
+if (Tag1 != lastTag1)
+  {
+  myString ="Tag100";
+  myString.concat(Tag1);
+  Serial.println(myString);
+  lastTag1 = Tag1;
+  }
+if (Tag2 != lastTag2)
+  {
+  myString ="Tag200";
+  myString.concat(Tag2);
+  Serial.println(myString);
+  lastTag2 = Tag2;
+  }
+
+
+
+
+
+
+
 
 
 
