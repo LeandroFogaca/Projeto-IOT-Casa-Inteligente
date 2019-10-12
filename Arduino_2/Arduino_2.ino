@@ -106,8 +106,6 @@ void loop()
     cmd = ((RxBuff[3] - 48) * 100) + ((RxBuff[2] - 48) * 10) + ((RxBuff[1] - 48) * 1);
 
 
-    //Decidir oque fazer com a variavel
-
         
 if (myString == "Chv1") {  Chv1  = cmd; }
 if (myString == "Chv2") {  Chv2  = cmd; }
@@ -119,16 +117,13 @@ if (myString == "Tag2") {  Tag2  = cmd; }
 
 
 
-
-
-
     RxF = 0;
   }
 
 
 
   if (((Chv1 == HIGH) || (Chv2 == HIGH) || (Chv3 == HIGH)) && (Tag1 == LOW)
-      && (Tag1 == LOW) && (AlarmeAcionado == HIGH))
+      && (Tag2 == LOW) && (AlarmeAcionado == HIGH))
   {
     tone(Buzzer, 1500, 500);
     

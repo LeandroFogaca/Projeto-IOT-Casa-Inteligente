@@ -1,31 +1,33 @@
 #include <DHT.h>
 #include <DHT_U.h>
-#define DHTTYPE DHT11 
 #include <SPI.h>
 #include <MFRC522.h>
 #include <SoftwareSerial.h>
 
 
 //Pinos da comunicação com o HC-05
-#define BTX 5
-#define BRX 4
+#define BTX 4
+#define BRX 3
 
 #define SS_PIN 10
 #define RST_PIN 9
 MFRC522 mfrc522(SS_PIN, RST_PIN);
 
-#define pinDHT A4 // pino de dados do DHT11
+#define DHTTYPE DHT11 
+#define pinDHT 5 // pino de dados do DHT11
 
-#define pinChave1 6
-#define pinChave2 7
-#define pinChave3 8
+#define pinChave1 A5
+#define pinChave2 A4
+#define pinChave3 A3
+#define pinLDR A2
 
 
 SoftwareSerial Bluetooth(BRX, BTX); //Configura a comunicação serial com para o HC-05
 DHT dht(pinDHT, DHTTYPE);  //Configura o DHT11
 
 
-int Rx, RxF = 0; //auxiliar e Flag do RX
+char Rx; 
+int RxF = 0; //auxiliar e Flag do RX
 char RxBuff[9]; // Menssagem que será recebida
 
 float umidade;    //usar coando dht.readHumidity();
@@ -69,24 +71,18 @@ void loop()
     RxBuff[0] = Rx;
 
     RxF = 1; //Flag para sinalizar que a informação é nova
+    //Serial.println(Rx);
   }
 
 
   if ((RxBuff[8] == '!') && (RxBuff[0] == '#') && (RxF == 1))
   {
 
-    for (int i = 7; i >= 4; --i) {
+    for (int i = 8; i >= 0; i--) {
       myString.concat(RxBuff[i]);
     }
-
-    cmd = ((RxBuff[3] - 48) * 100) + ((RxBuff[2] - 48) * 10) + ((RxBuff[1] - 48) * 1);
-
-    //Enviar os dados do App direto para o arduino02?
-
-    for (int i = 0; i >= 9; i++) {
-  Serial.println(RxBuff[i]);
-}
-
+      Serial.println(myString);   
+    myString = "";
     RxF = 0;
   }
 
@@ -97,44 +93,55 @@ void loop()
 
 if (Chv1 != lastChv1)
   {
-  myString ="Chv100";
+  myString ="!Chv100";
   myString.concat(Chv1);
+  myString.concat("#");
   Serial.println(myString);
   lastChv1 = Chv1;
   }
 
 if (Chv2 != lastChv2)
   {
-  myString ="Chv200";
+  myString ="!Chv200";
   myString.concat(Chv2);
+    myString.concat("#");
   Serial.println(myString);
   lastChv2 = Chv2;
+  myString = "";
   }
 
 if (Chv3 != lastChv3)
   {
-  myString ="Chv300";
+  myString ="!Chv300";
   myString.concat(Chv3);
+    myString.concat("#");
+
   Serial.println(myString);
   lastChv3 = Chv3;
+  myString = "";
   }
 if (Tag1 != lastTag1)
   {
-  myString ="Tag100";
+  myString ="!Tag100";
   myString.concat(Tag1);
+    myString.concat("#");
   Serial.println(myString);
   lastTag1 = Tag1;
+  myString = "";
   }
 if (Tag2 != lastTag2)
   {
-  myString ="Tag200";
+  myString ="!Tag200";
   myString.concat(Tag2);
+    myString.concat("#");
   Serial.println(myString);
   lastTag2 = Tag2;
+  myString = "";
   }
 
 
-
+  float umidade = dht.readHumidity();
+  float temperatura = dht.readTemperature();
 
 
 
@@ -168,32 +175,36 @@ if (Tag2 != lastTag2)
     Tag.concat(String(mfrc522.uid.uidByte[i], HEX));
   }
 
+ // Serial.println(Tag);
 
-  Serial.println(Tag);
-
-  if ((Tag == " e7 13 6c 34") && (es == 0)) {
-   
-    es = 1;
+  if ((Tag == " e7 13 6c 34") && (Tag1 == 0)) {   
+    Tag1 = 1;
     Tag = "";
-    delay (1000);
+    delay (10);
   }
 
-  if ((Tag == " e7 13 6c 34") && (es == 1)) {
+  if ((Tag == " e7 13 6c 34") && (Tag1 == 1)) {
+    Tag1 = 0;
+    Tag = "";
+    delay (10);
+  }
+  if ((Tag == " e7 13 6c 34") && (Tag2 == 0)) {   
+    Tag2 = 1;
+    Tag = "";
+    delay (10);
+  }
+
+  if ((Tag == " e7 13 6c 34") && (Tag2 == 1)) {
+    Tag2 = 0;
+    Tag = "";
+    delay (10);
+  }
+
+
+
+
+
   
-    es = 0;
-    Tag = "";
-    delay (1000);
-  }
-
-
-
-
-
-
-
-
-
-
 }
 
 
