@@ -32,11 +32,18 @@ Servo servoJnl;
 Servo servoPt1;
 Servo servoPt2;
 
+bool Led1;
+bool Led2;
+bool Led3;
+bool Led4;
+bool Led5;
+bool Led6;
 bool Chv1;
 bool Chv2;
 bool Chv3;
 bool Tag1;
 bool Tag2;
+bool Port;
 bool AlarmeAcionado;
 bool AcionamentoPortao;
 
@@ -133,18 +140,37 @@ void loop()
     if (myString == "Temp") {
       temperatura  = (cmd / 10);
     }
+    if (myString == "Tag1") {
+      Tag1  = cmd;
+    }
+    if (myString == "Tag2") {
+      Tag2  = cmd ;
+    }
+    if (myString == "Led1") {
+      Led1  = cmd;
+    }
+    if (myString == "Led2") {
+      Led2  = cmd;
+    }
+    if (myString == "Led3") {
+      Led3  = cmd;
+    }
+    if (myString == "Led4") {
+      Led4  = cmd;
+    }
+    if (myString == "Led5") {
+      Led5  = cmd;
+    }
+    if (myString == "Port") {
+      AcionamentoPortao = cmd;
+    }
 
-    if (myString == "Tag1") {  Tag1  = cmd; }
-    if (myString == "Tag2") {  Tag2  = cmd ;}
-    //if (myString == "") {    = cmd; }
-    //if (myString == "") {    = cmd; }
+
+
     //if (myString == "") {    = cmd; }
     //if (myString == "") {    = cmd; }
 
 
-    Serial.print(myString);
-    Serial.print(" = ");
-    Serial.println(cmd);
 
 
     myString = "";
@@ -156,46 +182,49 @@ void loop()
 
   if ( (Tag1 == HIGH) || (Tag2 == HIGH)) {
     AlarmeAcionado = LOW;
-  }else{
+  } else {
     AlarmeAcionado = HIGH;
   }
-  
+
 
 
   if (((Chv1 == HIGH) || (Chv2 == HIGH) || (Chv3 == HIGH)) && (Tag1 == LOW)
       && (Tag2 == LOW) && (AlarmeAcionado == HIGH))
   {
     tone(Buzzer, 1500, 500);
-  
+
 
     blink(pinled6, tempo);
   }
-  
-  if(AlarmeAcionado == LOW) {
+
+  if (AlarmeAcionado == LOW) {
     noTone(Buzzer);
-      Serial.println("Teste");
+    Serial.println("Teste");
 
   }
 
 
-  /*
 
-    if (AcinamentoPortao == HIGH)
+  digitalWrite(pinled1, Led1);
+  digitalWrite(pinled2, Led2);
+  digitalWrite(pinled3, Led3);
+  digitalWrite(pinled4, Led4);
+  digitalWrite(pinled5, Led5);
+  //digitalWrite(pinled6, Led6);
+
+
+ 
+    if (AcionamentoPortao == HIGH)
     {
-     servopt1(90);
-     servopt2(90);
+     servoPt1.write(90);
+     servoPt2.write(90);
     }
-    if (AcionemntoPortao == LOW)
+    if (AcionamentoPortao == LOW)
     {
-     servopt1(0);
-     servopt2(180);
+     servoPt1.write(0);
+     servoPt2.write(180);
     }
 
-
-
-
-
-  */
 
 
 
