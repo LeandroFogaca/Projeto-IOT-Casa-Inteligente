@@ -11,7 +11,7 @@
 #define pinled5 A4
 #define pinled6 A5 //Led Vermelho
 
-#define Buzzer 6
+#define Buzzer 9
 
 //pinos do LCD16x2
 #define RS 13
@@ -39,6 +39,9 @@ bool Tag1;
 bool Tag2;
 bool AlarmeAcionado;
 bool AcionamentoPortao;
+
+float umidade;    //usar comando dht.readHumidity();
+float temperatura; // usar comando dht.readTemperature();
 
 String myString;
 int cmd;
@@ -93,6 +96,8 @@ void loop()
     RxBuff[1] = RxBuff[0];
     RxBuff[0] = Rx;
 
+    //Serial.println("recebeu dados");
+    //Serial.println(char(Rx));
     RxF = 1; //Flag para sinalizar que a informação é nova
   }
 
@@ -106,52 +111,91 @@ void loop()
     cmd = ((RxBuff[3] - 48) * 100) + ((RxBuff[2] - 48) * 10) + ((RxBuff[1] - 48) * 1);
 
 
-        
-if (myString == "Chv1") {  Chv1  = cmd; }
-if (myString == "Chv2") {  Chv2  = cmd; }
-if (myString == "Chv3") {  Chv3  = cmd; }
-if (myString == "Tag1") {  Tag1  = cmd; }
-if (myString == "Tag2") {  Tag2  = cmd; }
-//if (myString == "") {    = cmd }
+
+    if (myString == "Chv1") {
+      Chv1  = cmd;
+    }
+    if (myString == "Chv2") {
+      Chv2  = cmd;
+    }
+    if (myString == "Chv3") {
+      Chv3  = cmd;
+    }
+    if (myString == "Tag1") {
+      Tag1  = cmd;
+    }
+    if (myString == "Tag2") {
+      Tag2  = cmd;
+    }
+    if (myString == "Umid") {
+      umidade  = (cmd / 10);
+    }
+    if (myString == "Temp") {
+      temperatura  = (cmd / 10);
+    }
+
+    if (myString == "Tag1") {  Tag1  = cmd; }
+    if (myString == "Tag2") {  Tag2  = cmd ;}
+    //if (myString == "") {    = cmd; }
+    //if (myString == "") {    = cmd; }
+    //if (myString == "") {    = cmd; }
+    //if (myString == "") {    = cmd; }
 
 
+    Serial.print(myString);
+    Serial.print(" = ");
+    Serial.println(cmd);
 
+
+    myString = "";
+    cmd = 0;
 
     RxF = 0;
   }
 
+
+  if ( (Tag1 == HIGH) || (Tag2 == HIGH)) {
+    AlarmeAcionado = LOW;
+  }else{
+    AlarmeAcionado = HIGH;
+  }
+  
 
 
   if (((Chv1 == HIGH) || (Chv2 == HIGH) || (Chv3 == HIGH)) && (Tag1 == LOW)
       && (Tag2 == LOW) && (AlarmeAcionado == HIGH))
   {
     tone(Buzzer, 1500, 500);
-    
+  
+
     blink(pinled6, tempo);
   }
-  if (AlarmeAcionado == LOW) {
+  
+  if(AlarmeAcionado == LOW) {
     noTone(Buzzer);
+      Serial.println("Teste");
+
   }
 
 
- /*
+  /*
 
-  if (AcinamentoPortao == HIGH)
-  {
-    servopt1(90);
-    servopt2(90);
-  }
-  if (AcionemntoPortao == LOW)
-  {
-    servopt1(0);
-    servopt2(180);
-  }
-
-
+    if (AcinamentoPortao == HIGH)
+    {
+     servopt1(90);
+     servopt2(90);
+    }
+    if (AcionemntoPortao == LOW)
+    {
+     servopt1(0);
+     servopt2(180);
+    }
 
 
 
-*/
+
+
+  */
 
 
 
