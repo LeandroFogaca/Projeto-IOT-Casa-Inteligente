@@ -43,9 +43,15 @@ bool Chv2;
 bool Chv3;
 bool Tag1;
 bool Tag2;
-bool Port;
-bool AlarmeAcionado;
-bool AcionamentoPortao;
+bool telhado, TelhadoAuto;
+bool AlarmeAcionado, AlarmeDisp;
+bool Portao;
+bool Janela;
+bool LDR;
+bool LareiraAuto;
+
+int Sli1;
+int TelhadoPosition;
 
 float umidade;    //usar comando dht.readHumidity();
 float temperatura; // usar comando dht.readTemperature();
@@ -53,7 +59,7 @@ float temperatura; // usar comando dht.readTemperature();
 String myString;
 int cmd;
 
-int tempo = 200;
+int tempo = 100; // Tempo que pisca o Led Vermelho
 void blink(int var, int time);
 
 void setup()
@@ -109,6 +115,8 @@ void loop()
   }
 
 
+
+  //...........GRAVA A MENSSAGEM RECEBIDA NAS VARIAVEIS myString E cmd..........//
   if ((RxBuff[8] == '!') && (RxBuff[0] == '#') && (RxF == 1))
   {
     for (int i = 7; i >= 4; --i) {
@@ -118,7 +126,7 @@ void loop()
     cmd = ((RxBuff[3] - 48) * 100) + ((RxBuff[2] - 48) * 10) + ((RxBuff[1] - 48) * 1);
 
 
-
+    //.............GRAVA O VALOR RECEBIDO NA VARIAVEL CORRETA................//
     if (myString == "Chv1") {
       Chv1  = cmd;
     }
@@ -162,16 +170,24 @@ void loop()
       Led5  = cmd;
     }
     if (myString == "Port") {
-      AcionamentoPortao = cmd;
+      Portao = cmd;
     }
-
-
-
+    if (myString == "Sli1") {
+      Sli1 = (cmd - 100);
+    }
+    if (myString == "Jan1") {
+      Janela = cmd;
+    }
+    if (myString == "Telh") {
+      TelhadoAuto = cmd;
+    }
+    if (myString == "Ldr1") {
+      LDR = cmd;
+    }
+    if (myString == "Lar1") {
+      LareiraAuto = cmd;
+    }
     //if (myString == "") {    = cmd; }
-    //if (myString == "") {    = cmd; }
-
-
-
 
     myString = "";
     cmd = 0;
@@ -180,60 +196,146 @@ void loop()
   }
 
 
-  if ( (Tag1 == HIGH) || (Tag2 == HIGH)) {
-    AlarmeAcionado = LOW;
-  } else {
+
+  //..................SISTEMA DE ALARME..............................//
+  //.................................................................//
+
+
+  if ( (AlarmeAcionado == LOW) && (Tag1 == LOW) && (Tag2 == LOW)) {
+
+    delay(2000);
+    tone(Buzzer, 1200);
+    delay(200);
+    noTone(Buzzer);
+    delay(50);
+
+    tone(Buzzer, 1200);
+    delay(200);
+    noTone(Buzzer);
+    delay(50);
+
+  }
+  if ( (Tag1 == LOW) && (Tag2 == LOW)) {
+
     AlarmeAcionado = HIGH;
   }
+  if ( (AlarmeAcionado == HIGH) && (Tag1 == HIGH) || (Tag2 == HIGH)) {
+    tone(Buzzer, 1200);
+    delay(400);
+    noTone(Buzzer);
+  }
+  if ( (Tag1 == HIGH) || (Tag2 == HIGH)) {    // Tag = HIGH morador está na casa
 
-
-
-  if (((Chv1 == HIGH) || (Chv2 == HIGH) || (Chv3 == HIGH)) && (Tag1 == LOW)
-      && (Tag2 == LOW) && (AlarmeAcionado == HIGH))
+    AlarmeAcionado = LOW;
+  }
+  if (((Chv1 == HIGH) || (Chv2 == HIGH) || (Chv3 == HIGH)) && (AlarmeAcionado == HIGH))
   {
-    tone(Buzzer, 1500, 500);
-
-
-    blink(pinled6, tempo);
+    AlarmeDisp = HIGH;
   }
 
   if (AlarmeAcionado == LOW) {
+
+    AlarmeDisp = LOW;
+  }
+
+  if ( AlarmeDisp == HIGH ) {
+
+    tone(Buzzer, 1500, 500);
+    blink(pinled6, tempo);
+  }
+
+  if (AlarmeDisp == LOW) {
+
     noTone(Buzzer);
-    Serial.println("Teste");
+    digitalWrite(pinled6, LOW);
 
   }
 
 
+
+
+
+
+
+  //.........ACIONAMENTO DAS LUZES by APLICATIVO...................//
 
   digitalWrite(pinled1, Led1);
   digitalWrite(pinled2, Led2);
   digitalWrite(pinled3, Led3);
-  digitalWrite(pinled4, Led4);
-  digitalWrite(pinled5, Led5);
   //digitalWrite(pinled6, Led6);
 
 
- 
-    if (AcionamentoPortao == HIGH)
-    {
-     servoPt1.write(90);
-     servoPt2.write(90);
+
+
+
+
+
+  /*
+    digitalWrite(pinled1, Chv1); //APAGAR
+    digitalWrite(pinled2, Chv2);//APAGAR
+    digitalWrite(pinled3, Chv3);//APAGAR
+    digitalWrite(pinled4, AlarmeAcionado);//APAGAR
+
+  */
+
+
+  //.............ABRE E FECHA OS PORTOES by APLICATIVO.........//
+
+  if (Portao == HIGH) {
+    servoPt1.write(90);
+    servoPt2.write(90);
+  }
+  if (Portao == LOW) {
+    servoPt1.write(0);
+    servoPt2.write(180);
+  }
+
+
+  //..............ACIONAMENTO DO TELHADO...............//
+
+  TelhadoPosition = map(Sli1, 0, 100, 0, 180); // Definir aqui o limite de movimento
+
+
+  if ( TelhadoAuto == LOW) {
+    servoTdo.write(TelhadoPosition);
+  }
+
+  if ( TelhadoAuto == HIGH) {
+    
+    if ( umidade > 80){
+    servoTdo.write(0);    
     }
-    if (AcionamentoPortao == LOW)
-    {
-     servoPt1.write(0);
-     servoPt2.write(180);
+    if ( umidade < 80){
+    servoTdo.write(0);
     }
+    
+  }
+
+//..............ACIONAMENTO DA LAREIRA..............//
+
+  if ( LareiraAuto == HIGH){
+
+    //Código de acionamento da lareira de acordo com a temperatura
+
+    
+  }
+  if ( LareiraAuto == LOW){
+  digitalWrite(pinled4, Led4);
+  }
+
+//................ACIONAMENTO AUTOMÁTICO LUZES EXTERNAS..............//
 
 
 
+  if ( LDR == HIGH){
 
-
-
-
-
-
-
+      //Código de acionamento das luzes pelo LDR
+    
+  }
+  if ( LDR == LOW){
+    
+  digitalWrite(pinled5, Led5);
+  }
 
 
 

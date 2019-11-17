@@ -44,11 +44,11 @@ bool Chv3, lastChv3;
 bool Tag1, lastTag1;
 bool Tag2, lastTag2;
 
+
 String myString;
 int cmd;
 int es = 0;
 int tempo;
-int cardout;
 bool temporizador();
 
 
@@ -154,7 +154,7 @@ void loop()
   float temperatura = dht.readTemperature();
 
 
-  if ( temporizador(2000) == HIGH) {
+  if ( temporizador(1000) == HIGH) {
 
     int valor = umidade * 10;
 
@@ -162,7 +162,7 @@ void loop()
     myString.concat(valor);
     myString.concat("#");
     Serial.println(myString);
-    myString = "";
+    myString = "";  
     valor = temperatura * 10;
 
     myString = "!Temp";
@@ -171,9 +171,11 @@ void loop()
     Serial.println(myString);
     myString = "";
 
-    cardout = 0;
+    
 
   }
+
+  
 
 
   /*
@@ -200,58 +202,33 @@ void loop()
 
 
 
-  if ((Tag == " e7 13 6c 34") && (Tag1 == 0) && (cardout == 0)) {
+  if ((Tag == " e7 13 6c 34") && (Tag1 == 0)) {
     Tag1 = 1;
     Tag = "";
-    cardout = 1;
-    delay (10);
+    delay (2000);
   }
 
-  if ((Tag == " e7 13 6c 34") && (Tag1 == 1) && (cardout == 0) ) {
+  if ((Tag == " e7 13 6c 34") && (Tag1 == 1)) {
     Tag1 = 0;
     Tag = "";
-    cardout = 1;
-    delay (10);
+    delay (2000);
   }
-  if ((Tag == " ca 64 99 1a") && (Tag2 == 0) && (cardout == 0)) {
+  if ((Tag == " ca 64 99 1a") && (Tag2 == 0)) {
     Tag2 = 1;
     Tag = "";
-    cardout = 1;
-    delay (10);
+    delay (2000);
   }
 
-  if ((Tag == " ca 64 99 1a") && (Tag2 == 1) && (cardout == 0)) {
+  if ((Tag == " ca 64 99 1a") && (Tag2 == 1)) {
     Tag2 = 0;
     Tag = "";
-    cardout = 1;
-    delay (10);
+    delay (2000);
   }
 
 
-  
-
-
-
-
-
-
-
- 
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+/////// FUNÇÕES //////
 
 bool temporizador(int time) {
 
