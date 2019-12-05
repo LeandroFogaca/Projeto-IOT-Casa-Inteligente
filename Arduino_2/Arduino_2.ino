@@ -1,7 +1,6 @@
-#include <LiquidCrystal.h>
-#include <SoftwareSerial.h>
-#include <Servo.h>
+//#include <LiquidCrystal.h>
 
+#include <Servo.h>
 
 //Pinos dos Leds
 #define pinled1 A0
@@ -13,15 +12,15 @@
 
 #define Buzzer 9
 
-//pinos do LCD16x2
-#define RS 13
-#define E 12
-#define db4 8
-#define db5 7
-#define db6 4
-#define db7 2
-
-LiquidCrystal lcd(RS, E, db4, db5, db6, db7); //Configuração do LCD
+/*pinos do //lcd16x2
+  #define RS 13
+  #define E 12
+  #define db4 8
+  #define db5 7
+  #define db6 4
+  #define db7 2
+*/
+//LiquidCrystal //lcd(RS, E, db4, db5, db6, db7); //Configuração do //lcd
 
 int Rx, RxF = 0; //auxiliar e Flag do RX
 char RxBuff[8]; // Menssagem que será recebida
@@ -46,12 +45,14 @@ bool Tag2;
 bool telhado, TelhadoAuto;
 bool AlarmeAcionado, AlarmeDisp;
 bool Portao;
-bool Janela;
-bool LDR;
+bool Janela, JanelaAuto;
+bool Ldr1; //Função automática
 bool LareiraAuto;
 
+int Ldr2; //valor do LDR
 int Sli1;
 int TelhadoPosition;
+int posJanela;
 
 float umidade;    //usar comando dht.readHumidity();
 float temperatura; // usar comando dht.readTemperature();
@@ -65,7 +66,6 @@ void blink(int var, int time);
 void setup()
 {
 
-  lcd.begin(16, 2);
   Serial.begin(9600);
   pinMode(pinled1 , OUTPUT);
   pinMode(pinled2 , OUTPUT);
@@ -76,20 +76,17 @@ void setup()
 
   pinMode(Buzzer, OUTPUT);
 
-
   servoTdo.attach(5);  //anexa portão do telhado na porta 5
-  servoJnl.attach(9);  //anexa portão da Janela na porta 9
-  servoPt1.attach(10); //anexa portão do Portão1 na porta 10
+  servoJnl.attach(10);  //anexa portão da Janela na porta 9
+  servoPt1.attach(6); //anexa portão do Portão1 na porta 10
   servoPt2.attach(11); //anexa portão do Portão2 na porta 11
 
+  AlarmeAcionado = LOW;
 
-
-
-  lcd.clear();
-  delay(200);
-  lcd.setCursor(3, 0);
-  lcd.print("Iniciando");
-  delay(200);
+  servoJnl.write(45);
+  posJanela = 45;
+  servoTdo.write(180);
+  TelhadoPosition = 180;
 }
 
 void loop()
@@ -127,73 +124,162 @@ void loop()
 
 
     //.............GRAVA O VALOR RECEBIDO NA VARIAVEL CORRETA................//
+
+
+
     if (myString == "Chv1") {
       Chv1  = cmd;
+      Serial.print(myString);
+      Serial.print(" = ");
+      Serial.println(cmd);
     }
     if (myString == "Chv2") {
       Chv2  = cmd;
+      Serial.print(myString);
+      Serial.print(" = ");
+      Serial.println(cmd);
     }
     if (myString == "Chv3") {
       Chv3  = cmd;
+      Serial.print(myString);
+      Serial.print(" = ");
+      Serial.println(cmd);
     }
     if (myString == "Tag1") {
       Tag1  = cmd;
+      Serial.print(myString);
+      Serial.print(" = ");
+      Serial.println(cmd);
     }
     if (myString == "Tag2") {
       Tag2  = cmd;
+      Serial.print(myString);
+      Serial.print(" = ");
+      Serial.println(cmd);
     }
     if (myString == "Umid") {
-      umidade  = (cmd / 10);
+      cmd  = (cmd / 10);
+      umidade = cmd;
     }
     if (myString == "Temp") {
-      temperatura  = (cmd / 10);
+      cmd  = (cmd / 10);
+      temperatura = cmd;
     }
     if (myString == "Tag1") {
       Tag1  = cmd;
+      Serial.print(myString);
+      Serial.print(" = ");
+      Serial.println(cmd);
     }
     if (myString == "Tag2") {
       Tag2  = cmd ;
+      Serial.print(myString);
+      Serial.print(" = ");
+      Serial.println(cmd);
     }
     if (myString == "Led1") {
       Led1  = cmd;
+      Serial.print(myString);
+      Serial.print(" = ");
+      Serial.println(cmd);
     }
     if (myString == "Led2") {
       Led2  = cmd;
+      Serial.print(myString);
+      Serial.print(" = ");
+      Serial.println(cmd);
     }
     if (myString == "Led3") {
       Led3  = cmd;
+      Serial.print(myString);
+      Serial.print(" = ");
+      Serial.println(cmd);
     }
     if (myString == "Led4") {
       Led4  = cmd;
+      Serial.print(myString);
+      Serial.print(" = ");
+      Serial.println(cmd);
     }
     if (myString == "Led5") {
       Led5  = cmd;
+      Serial.print(myString);
+      Serial.print(" = ");
+      Serial.println(cmd);
     }
     if (myString == "Port") {
       Portao = cmd;
+      //Serial.print(myString);
+      //Serial.print(" = ");
+      //Serial.println(cmd);
     }
     if (myString == "Sli1") {
       Sli1 = (cmd - 100);
+
+      TelhadoPosition = map(Sli1, 0, 100, 90, 180); // Definir aqui o limite de movimento
+
+      Serial.print(myString);
+      Serial.print(" = ");
+      Serial.println(cmd);
+    }
+    if (myString == "Jan2") {
+      Janela = cmd;
+      Serial.print(myString);
+      Serial.print(" = ");
+      Serial.println(cmd);
     }
     if (myString == "Jan1") {
-      Janela = cmd;
+      JanelaAuto = cmd;
+      Serial.print(myString);
+      Serial.print(" = ");
+      Serial.println(cmd);
     }
     if (myString == "Telh") {
       TelhadoAuto = cmd;
+      Serial.print(myString);
+      Serial.print(" = ");
+      Serial.println(cmd);
     }
     if (myString == "Ldr1") {
-      LDR = cmd;
+      Ldr1 = cmd;
+      Serial.print(myString);
+      Serial.print(" = ");
+      Serial.println(cmd);
+    }
+    if (myString == "Ldr2") {
+      cmd = cmd - 100;
+      Ldr2 = cmd;
     }
     if (myString == "Lar1") {
       LareiraAuto = cmd;
+      Serial.print(myString);
+      Serial.print(" = ");
+      Serial.println(cmd);
     }
     //if (myString == "") {    = cmd; }
+
 
     myString = "";
     cmd = 0;
 
+
+    Serial.print("Umidade");
+    Serial.print(" = ");
+    Serial.print(umidade);
+    Serial.print(" --- ");
+    Serial.print("Temperatura");
+    Serial.print(" = ");
+    Serial.print(temperatura);
+    Serial.print(" --- ");
+    Serial.print("LDR");
+    Serial.print(" = ");
+    Serial.println(Ldr2);
+
+
     RxF = 0;
   }
+
+
 
 
 
@@ -219,7 +305,7 @@ void loop()
 
     AlarmeAcionado = HIGH;
   }
-  if ( (AlarmeAcionado == HIGH) && (Tag1 == HIGH) || (Tag2 == HIGH)) {
+  if ( (AlarmeAcionado == HIGH) && ((Tag1 == HIGH) || (Tag2 == HIGH))) {
     tone(Buzzer, 1200);
     delay(400);
     noTone(Buzzer);
@@ -253,10 +339,6 @@ void loop()
 
 
 
-
-
-
-
   //.........ACIONAMENTO DAS LUZES by APLICATIVO...................//
 
   digitalWrite(pinled1, Led1);
@@ -267,79 +349,99 @@ void loop()
 
 
 
-
-
-
-  /*
-    digitalWrite(pinled1, Chv1); //APAGAR
-    digitalWrite(pinled2, Chv2);//APAGAR
-    digitalWrite(pinled3, Chv3);//APAGAR
-    digitalWrite(pinled4, AlarmeAcionado);//APAGAR
-
-  */
-
-
   //.............ABRE E FECHA OS PORTOES by APLICATIVO.........//
 
   if (Portao == HIGH) {
-    servoPt1.write(90);
-    servoPt2.write(90);
-  }
-  if (Portao == LOW) {
     servoPt1.write(0);
     servoPt2.write(180);
+  }
+
+  if (Portao == LOW) {
+    servoPt1.write(90);
+    servoPt2.write(90);
   }
 
 
   //..............ACIONAMENTO DO TELHADO...............//
 
-  TelhadoPosition = map(Sli1, 0, 100, 0, 180); // Definir aqui o limite de movimento
-
 
   if ( TelhadoAuto == LOW) {
     servoTdo.write(TelhadoPosition);
   }
-
   if ( TelhadoAuto == HIGH) {
-    
-    if ( umidade > 80){
-    servoTdo.write(0);    
+    if ( (umidade > 70) && (TelhadoPosition > 0) ) {
+      for ( TelhadoPosition; TelhadoPosition >= 90; TelhadoPosition-- ) {
+        servoTdo.write(TelhadoPosition);
+        delay(20);
+      }
     }
-    if ( umidade < 80){
-    servoTdo.write(0);
+    if ( umidade < 60 ) {
+      for ( TelhadoPosition; TelhadoPosition <= 180; TelhadoPosition++ ) {
+        servoTdo.write(TelhadoPosition);
+        delay(20);
+      }
     }
-    
   }
 
-//..............ACIONAMENTO DA LAREIRA..............//
 
-  if ( LareiraAuto == HIGH){
+  
+  //..............ACIONAMENTO DA LAREIRA..............//
+
+
+  if ( LareiraAuto == HIGH) {
 
     //Código de acionamento da lareira de acordo com a temperatura
 
-    
+    if (temperatura <= 33) {
+      digitalWrite(pinled4, HIGH);
+    }
+
+    if (temperatura > 33) {
+      digitalWrite(pinled4, LOW);
+    }
+
   }
-  if ( LareiraAuto == LOW){
-  digitalWrite(pinled4, Led4);
-  }
-
-//................ACIONAMENTO AUTOMÁTICO LUZES EXTERNAS..............//
-
-
-
-  if ( LDR == HIGH){
-
-      //Código de acionamento das luzes pelo LDR
-    
-  }
-  if ( LDR == LOW){
-    
-  digitalWrite(pinled5, Led5);
+  if ( LareiraAuto == LOW) {
+    digitalWrite(pinled4, Led4);
   }
 
 
 
-}
+  //................ACIONAMENTO AUTOMÁTICO LUZES EXTERNAS..............//
+
+
+  if (( Ldr1 == HIGH ) && ( Ldr2 < 50)) {
+
+    digitalWrite(pinled5, HIGH);
+  }
+  if (( Ldr1 == HIGH ) && ( Ldr2 > 50)) {
+    digitalWrite(pinled5, LOW);
+
+  }
+  if ( Ldr1 == LOW ) {
+
+    digitalWrite(pinled5, Led5);
+  }
+
+  //...........JANELA...........//
+
+  if (JanelaAuto == HIGH){
+     if (umidade > 70){
+      servoJnl.write(45);
+    }
+    if ( umidade < 60){
+      servoJnl.write(0);
+    }
+  }
+  if ( JanelaAuto == LOW) {
+    if (Janela == LOW) {
+      servoJnl.write(45);
+    }
+    if (Janela == HIGH) {
+      servoJnl.write(0);
+    }
+  }
+}// Fim do Loop
 
 
 void blink(int var, int time) {

@@ -30,6 +30,7 @@ MFRC522 mfrc522(SS_PIN, RST_PIN);
 SoftwareSerial Bluetooth(BRX, BTX); //Configura a comunicação serial com para o HC-05
 DHT dht(pinDHT, DHTTYPE);  //Configura o DHT11
 
+int valor;
 
 char Rx;
 int RxF = 0; //auxiliar e Flag do RX
@@ -44,12 +45,10 @@ bool Chv3, lastChv3;
 bool Tag1, lastTag1;
 bool Tag2, lastTag2;
 
+int LDR, valorLDR;
 
 String myString;
 int cmd;
-int es = 0;
-int tempo;
-bool temporizador();
 
 
 void setup()
@@ -60,7 +59,6 @@ void setup()
   mfrc522.PCD_Init(); //Inicia a comunicação com o sensor RFID
   dht.begin();  //inicia a comunicação com o DHT11
 
-  tempo = 0;
 
 }
 void loop()
@@ -97,9 +95,9 @@ void loop()
   }
 
 
-  Chv1 = digitalRead(pinChave1);
-  Chv2 = digitalRead(pinChave2);
-  Chv3 = digitalRead(pinChave3);
+  Chv1 = !digitalRead(pinChave1);
+  Chv2 = !digitalRead(pinChave2);
+  Chv3 = !digitalRead(pinChave3);
 
   if (Chv1 != lastChv1)
   {
@@ -150,19 +148,24 @@ void loop()
   }
 
 
-  float umidade = dht.readHumidity();
-  float temperatura = dht.readTemperature();
 
+  //...........DHT 11, Temperatura e Umidade..........//
 
-  if ( temporizador(1000) == HIGH) {
+    float umidade = dht.readHumidity();
+    float temperatura = dht.readTemperature();
 
-    int valor = umidade * 10;
+    //Serial.print("Umidade = ");
+    //Serial.println(umidade);
+    //Serial.print("Temperatura = ");
+    //Serial.println(temperatura);
+    valor = umidade * 10;
 
     myString = "!Umid";
     myString.concat(valor);
     myString.concat("#");
     Serial.println(myString);
-    myString = "";  
+    myString = "";
+    delay(50);
     valor = temperatura * 10;
 
     myString = "!Temp";
@@ -170,37 +173,55 @@ void loop()
     myString.concat("#");
     Serial.println(myString);
     myString = "";
+    delay(50);
+    valor = 0;
+
 
     
+  //..........LDR...............//
 
-  }
+  LDR = analogRead(pinLDR);
 
-  
+  valorLDR = map(LDR, 0, 1023, 100, 200);
+
+    myString = "!Ldr2";
+    myString.concat(valorLDR);
+    myString.concat("#");
+    Serial.println(myString);
+    myString = "";
+    delay(50);
 
 
+
+
+
+
+
+
+
+
+    
   /*
      Inicio da programação do RFID
   */
 
-  if ( ! mfrc522.PICC_IsNewCardPresent()) { // Busca novos cartões  
+  if ( ! mfrc522.PICC_IsNewCardPresent()) { // Busca novos cartões
     return;
   }
-    
-    
+
+
   if ( ! mfrc522.PICC_ReadCardSerial()) {   // Seleciona um cartão a ser lido
     return;
   }
 
   String Tag = "";
-  
-  
+
+
   for (byte i = 0; i < mfrc522.uid.size; i++)
   {
     Tag.concat(String(mfrc522.uid.uidByte[i] < 0x10 ? "0" : " "));
     Tag.concat(String(mfrc522.uid.uidByte[i], HEX));
   }
-
-
 
   if ((Tag == " e7 13 6c 34") && (Tag1 == 0)) {
     Tag1 = 1;
@@ -213,6 +234,7 @@ void loop()
     Tag = "";
     delay (2000);
   }
+
   if ((Tag == " ca 64 99 1a") && (Tag2 == 0)) {
     Tag2 = 1;
     Tag = "";
@@ -227,25 +249,3 @@ void loop()
 
 
 }
-
-/////// FUNÇÕES //////
-
-bool temporizador(int time) {
-
-  if (millis() - tempo > time) {
-
-    tempo = millis();
-    return HIGH;
-  }
-  return LOW;
-}
-
-
-/*
-  testa se retorno do dht é valido, caso contrário algo está errado.
-  if (isnan(t) || isnan(h))
-  {
-    Serial.println("Failed to read from DHT");
-  }
-
-*/
