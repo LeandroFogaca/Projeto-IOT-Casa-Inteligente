@@ -10,7 +10,7 @@ O projeto conta com um aplicativo criado no site MIT app inventor 2 para control
 
 Aplicativo criado no APP INVENTOR 2 para utilização no projeto
 
-ai2.appinventor.mit.edu/?galleryId=5268691490570240
+[Aplicativo controle casa automatizada](ai2.appinventor.mit.edu/?galleryId=5268691490570240)
 
 
 <!--stackedit_data:
