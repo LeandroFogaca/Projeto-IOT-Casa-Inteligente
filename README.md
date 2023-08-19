@@ -1,4 +1,5 @@
-# Dom-tica-bluetooth-arduino
+# Automação Residencial - Projeto de Conclusão Curso técnico em Mecatrônica
+
 Trabalho de conclusão de curso usando aplicativo para controlar uma maquete de uma residência através do bluetooth
 
 ## Projeto de conclusão de Curso Técnico em Mecatrônica, Escola Etecsal 2019
